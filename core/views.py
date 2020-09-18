@@ -41,7 +41,11 @@ def lista_eventos(request):
 
 @login_required(login_url='/login/')
 def evento(request):
-    return render(request,'evento.html')
+    id_evento = request.GET.get('id')
+    dados = {}
+    if id_evento:
+        dados['evento'] = Evento.objects.get(id=id_evento)
+    return render(request,'evento.html', dados)
 
 @login_required(login_url='/login/')
 def evento_submit(request):
@@ -51,11 +55,33 @@ def evento_submit(request):
         descricao = request.POST.get('descricao')
         usuario = request.user
         local = request.POST.get('local')
-        Evento.objects.create(titulo=titulo,
-                             data_evento=data_evento,
-                             descricao=descricao,
-                             usuario=usuario,
-                              local=local)
+        id_evento = request.POST.get('id_evento')
+        if id_evento:
+            # ESSE É UMA DAS MANEIRAS PARA FAZER O UPDATE
+            #Evento.objects.filter(id=id_evento).update(titulo=titulo,
+            #                      data_evento=data_evento,
+            #                      descricao=descricao,
+            #                      local=local)
+            #ESSA GORA É OUTRA MANEIRA
+            evento = Evento.objects.get(id=id_evento)
+            if evento.usuario == usuario:
+                evento.titulo = titulo
+                evento.data_evento = data_evento
+                evento.local = local
+                evento.descricao = descricao
+                evento.save()
+        else:
+            Evento.objects.create(titulo=titulo,
+                                 data_evento=data_evento,
+                                 descricao=descricao,
+                                 usuario=usuario,
+                                  local=local)
+    return redirect('/')
 
-
+@login_required(login_url='/login/')
+def delete_evento(request, id_evento):
+    usuario = request.user
+    evento = Evento.objects.get(id=id_evento)
+    if usuario == evento.usuario:
+        evento.delete()
     return redirect('/')
