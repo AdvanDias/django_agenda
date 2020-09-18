@@ -9,7 +9,7 @@
 
     <ul>
     {%for evento in evento%}
-        <li style="font-size: 20px">{{ evento.titulo }} - {{ evento.get_data_evento }}</li>
+        <li style="font-size: 20px">{{ evento.titulo }} - {{ evento.get_data_evento }}- {{ evento.local }}</li>
     {%endfor%}
     </ul>
   {% endblock %}
